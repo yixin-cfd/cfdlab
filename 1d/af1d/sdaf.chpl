@@ -11,7 +11,8 @@ config const n    = 100,
              Tf   = 1.0,
              cfl  = 0.25,
              diff = 1,
-             ic   = 1;
+             ic   = 1,
+             jac  = 0;
 
 const xmin = 0.0;
 const xmax = 1.0;
@@ -109,7 +110,12 @@ proc rhsv1(uc, uv, ref Rv)
 {
    forall i in D
    {
-      const J = jacobian(uv[i]);
+      var J : real;
+      if jac == 0 then
+         J = jacobian(uv[i]);
+      else
+         J = jacobian(0.5 * (uc[i-1] + uc[i]));
+
       var ux : real;
       if J > 0.0
       {
@@ -136,7 +142,12 @@ proc rhsv2(uc, uv, ref Rv)
 
    forall i in D
    {
-      const J = jacobian(uv[i]);
+      var J : real;
+      if jac == 0 then
+         J = jacobian(uv[i]);
+      else
+         J = jacobian(0.5 * (uc[i-1] + uc[i]));
+
       // cell center values
       const uim1 = (6.0 * uc[i-1] - uv[i-1] - uv[i]) / 4.0;
       const ui   = (6.0 * uc[i]   - uv[i+1] - uv[i]) / 4.0;
